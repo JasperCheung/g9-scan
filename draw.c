@@ -20,6 +20,15 @@
   Color should be set differently for each polygon.
   ====================*/
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
+  double xb = points->m[0][0];
+  double yb = points->m[0][1];
+  double zb = points->m[0][2];
+  double xm = points->m[1][0];
+  double ym = points->m[1][1];
+  double zm = points->m[1][2];
+  double xt = points->m[2][0];
+  double yt = points->m[2][1];
+  double zt = points->m[2][2]; 
 
 }
 
