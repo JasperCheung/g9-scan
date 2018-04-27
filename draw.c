@@ -19,18 +19,95 @@
 
   Color should be set differently for each polygon.
   ====================*/
-void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
-  double xb = points->m[0][0];
-  double yb = points->m[0][1];
-  double zb = points->m[0][2];
-  double xm = points->m[1][0];
-  double ym = points->m[1][1];
-  double zm = points->m[1][2];
-  double xt = points->m[2][0];
-  double yt = points->m[2][1];
-  double zt = points->m[2][2]; 
+void scanline_convert( struct matrix *points, int i, screen s, zbuffer zbuf ) {
+  double xb = points->m[0][i];
+  double yb = points->m[1][i];
+  double zb = points->m[2][i];
+  double xm = points->m[0][i + 1];
+  double ym = points->m[1][i+ 1];
+  double zm = points->m[2][1 + i];
+  double xt = points->m[0][2 + i];
+  double yt = points->m[1][2 + i];
+  double zt = points->m[2][2 + i];
+  double x0, x1, z0, z1;
+  double cx0, cx1, cz0, cz1;
+  color c;
+  c.red=(i * 60) % 255;
+  c.green=(i * 45) % 255;
+  c.blue=(i*90) & 255;
 
+  double edges[3][3] = {{xb,xm,xt},{yb,ym,yt},{zb,ym,zt}};
+  double xtmp, ytmp, ztmp;
+  
+  //ordering kms
+    // Ordering coordinates based off y-value
+  if (edges[1][0] > edges[1][1]){
+    // yb > ym
+    xtmp = edges[0][1];
+    ytmp = edges[1][1];
+    ztmp = edges[2][1];
+    edges[0][1] = edges[0][0];
+    edges[1][1] = edges[1][0];
+    edges[2][1] = edges[2][0];
+    edges[0][0] = xtmp;
+    edges[1][0] = ytmp;
+    edges[2][0] = ztmp;
+  }
+
+  if (edges[1][0] > edges[1][2]) {
+    // yb > yt
+    xtmp = edges[0][0];
+    ytmp = edges[1][0];
+    ztmp = edges[2][0];
+    edges[0][0] = edges[0][2];
+    edges[1][0] = edges[1][2];
+    edges[2][0] = edges[2][2];
+    edges[0][2] = xtmp;
+    edges[1][2] = ytmp;
+    edges[2][2] = ztmp;
+  }
+
+  if(edges[1][1] > edges[1][2]) {
+    // ym > yt
+    xtmp = edges[0][1];
+    ytmp = edges[1][1];
+    ztmp = edges[2][1];
+    edges[0][1] = edges[0][2];
+    edges[1][1] = edges[1][2];
+    edges[2][1] = edges[2][2];
+    edges[0][2] = xtmp;
+    edges[1][2] = ytmp;
+    edges[2][2] = ztmp;    
+  }
+  xb = edges[0][0], yb = edges[1][0], zb = edges[2][0];
+  xm = edges[0][1], ym = edges[1][1], zm = edges[2][1];
+  xt = edges[0][2], yt = edges[1][2], zt = edges[2][2];
+
+  // Setting increment values
+  cx0 = (xt - xb) / (yt - yb);
+  cz0 = (zt - zb) / (yt - yb);
+  cx1 = (xm - xb) / (ym - yb);
+  cz1 = (zm - zb) / (ym - yb);
+  int y;
+  for (y = (int)yb; y < (int)ym; y++) {
+    draw_line(x0, y, z0, x1, y, z1, s, zbuf, c);
+    x0 += cx0, z0 += cz0;
+    x1 += cx1, z1 += cz1;
+  }
+
+  cx1 = (xt - xm) / (yt - ym);
+  cz1 = (zt - zm) / (yt - ym);
+  
+  x1 = xm, z1 = zm;
+  // Middle to top
+  for (y = (int)ym; y < (int)yt; y++) {
+    draw_line(x0, y, z0, x1, y, z1, s, zbuf, c);
+    x0 += cx0, z0 += cz0;
+    x1 += cx1, z1 += cz1;
+  }    
 }
+
+
 
 /*======== void add_polygon() ==========
   Inputs:   struct matrix *surfaces
