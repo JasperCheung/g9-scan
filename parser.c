@@ -18,18 +18,23 @@ Inputs:   char * filename
           struct matrix * polygons,
           screen s
 Returns:
+
 Goes through the file named filename and performs all of the actions listed in that file.
 The file follows the following format:
      Every command is a single character that takes up a line
      Any command that requires arguments must have those arguments in the second line.
      The commands are as follows:
+
      push: push a copy of the curent top of the coordinate system stack to the stack
+
      pop: remove the current top of the coordinate system stack
+
      All the shape commands work as follows:
         1) Add the shape to a temporary matrix
         2) Multiply that matrix by the current top of the coordinate system stack
         3) Draw the shape to the screen
         4) Clear the temporary matrix
+
      sphere: add a sphere -
              takes 4 arguemnts (cx, cy, cz, r)
      torus: add a torus to the polygon matrix -
@@ -44,6 +49,7 @@ The file follows the following format:
              takes 8 arguments (x0, y0, x1, y1, x2, y2, x3, y3)
      line: add a line to the edge matrix -
            takes 6 arguemnts (x0, y0, z0, x1, y1, z1)
+
      scale: create a scale matrix,
             then multiply the current top of the coordinate system stack -
             takes 3 arguments (sx, sy, sz)
@@ -53,11 +59,16 @@ The file follows the following format:
      rotate: create a rotation matrix,
              then multiply the transform matrix by the translation matrix -
              takes 2 arguments (axis, theta) axis should be x, y or z
+
      display: display the screen
+
      save: save the screen to a file -
            takes 1 argument (file name)
+
     quit: end parsing
+
 See the file script for an example of the file format
+
 IMPORTANT MATH NOTE:
 the trig functions int math.h use radian mesure, but us normal
 humans use degrees, so the file will contain degrees for rotations,
